@@ -29,7 +29,7 @@ public class MainController extends HttpServlet {
 
     public UserDTO getUser(String strUserID) {
         UserDAO udao = new UserDAO();
-        UserDTO user = udao.readById(strUserID);
+        UserDTO user = udao.readbyName(strUserID);
         return user;
     }
 

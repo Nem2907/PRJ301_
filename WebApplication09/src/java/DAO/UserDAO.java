@@ -172,4 +172,28 @@ public class UserDAO implements IDAO<UserDTO, String> {
         return list;
     }
 
+    public UserDTO readByName(String userName) {
+        String sql = "SELECT * FROM [dbo].[tblUsers] WHERE UserName = ?";
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                UserDTO user = new UserDTO(
+                        rs.getString("UserName"),
+                        rs.getString("Name"),
+                        rs.getString("Password"),
+                        rs.getString("Role"));
+                return user;
+            }
+        }catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public UserDTO readbyName(String strUserID) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

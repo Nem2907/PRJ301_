@@ -10,18 +10,21 @@
                 background: url(assess/2ffa5105e1ab6b4634eebdb911526acd.jpg) center center fixed;
                 background-size: calc(50%);
             }
-            .form-label{
-                background: aquamarine;
-                color: graytext;
-            }
             .col-md-6.h3{
-               align-content: center;
+                align-content: center;
             }
             .col-md-6.p{
-               align-content: center;
+                align-content: center;
+            }
+
+            .message {
+                padding: 5px; /* T?o kho?ng cách h?p lý */
+                border-radius: 3px; /* Làm góc bo tròn nh? */
+                font-size: 14px;
+                width: fit-content; /* Ch? v?a v?i n?i dung */
             }
         </style>
-        
+
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
@@ -46,7 +49,7 @@
                         <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
                     </ul>
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="register.jsp">Register</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Log in</a></li>
                     </ul>
                 </div>
@@ -59,17 +62,41 @@
                 <div class="col-md-6" style="background: whitesmoke">
                     <h3>Please log in here.</h3>
                     <p>Enter your details below</p>
-                    <form>
+                    <form action="MainController" method="post">                         
+
+                        <input type="hidden" name="action" value="login">
+
                         <div class="mb-3">
                             <label for="username" class="form-label">User Name</label>
-                            <input type="text" class="form-control" id="username" placeholder="Enter your username">
+                            <input type="text" class="form-control" id="username" name="txtUserName" placeholder="Enter your username">
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="Enter your password">
+                            <input type="password" class="form-control" id="password" name="txtPassword" placeholder="Enter your password">
                         </div>
-                        <button type="submit" class="btn btn-primary">Log in</button>
+                        <div>
+                            <button type="submit" class="btn btn-primary">Log in</button>
+                        </div>
+
                     </form>
+                    <%
+                        String message = (String) request.getAttribute("errorMessage") + "";
+                    %>  
+                    <%
+                        if (message != null && !message.equals("null") && !message.isEmpty()) {
+                    %>
+                    <div class="message">
+                        <div class="p-3 mb-2 bg-danger text-white"><%= message%></div>
+                    </div>
+                    <%
+                        }
+                    %>
+                    <div>
+                        <p class="text-muted">
+                            If you don't have an account, 
+                            <a href="register.jsp" class="fw-bold btn btn-outline-dark px-3 py-1">Register Here!</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

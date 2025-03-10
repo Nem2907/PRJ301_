@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * @author hoang
  */
 public class DBUtils {
-       private static final String DB_NAME = "prj301_1805_slot8";
+       private static final String DB_NAME = "Fast_Food_Online";
         private static final String DB_username = "sa";
         private static final String DB_password = "12345";
         

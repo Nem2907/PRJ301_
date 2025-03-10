@@ -57,7 +57,7 @@ public class MainController extends HttpServlet {
                         request.getSession().setAttribute("user", user);
                     } else {
                         request.setAttribute("message","Incorrect UserID or Password");
-                        url = "login.jsp";
+                        url = "login.jsp";       
                     }
                 } else if (action.equals("logout")) {
                     request.getSession().invalidate(); // Hủy session
