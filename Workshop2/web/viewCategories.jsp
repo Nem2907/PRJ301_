@@ -1,5 +1,6 @@
+<%@page import="dao.ExamCategoriesDAO"%>
+<%@page import="dto.ExamCategoriesDTO"%>
 <%@page import="java.util.List"%>
-<%@page import="dto.StartupProjectsDTO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -125,77 +126,59 @@
     <body>
         <div class="container">
             <h2>Welcome to Project Dashboard</h2>
+            <%
+                ExamCategoriesDAO categoryDAO = new ExamCategoriesDAO();
+                List<ExamCategoriesDTO> categories = (List<ExamCategoriesDTO>) categoryDAO.readAll();
+            %>
 
             <%
                 dto.UserDTO user = (dto.UserDTO) session.getAttribute("user");
                 if (user != null) {
             %>
             <p class="welcome-message">Hello, <strong><%= user.getName()%></strong>! You are logged in.</p>
-
+            <%}%>
             <form action="MainController">
                 <input type="hidden" name="action" value="logout"/>
                 <input type="submit" class="logout-btn" value="Logout"/>
             </form>
-            <hr/>
-
-            <%
-                String searchTerm = (String) request.getAttribute("searchTerm") + "";
-                searchTerm = searchTerm.equals("null") ? "" : searchTerm;
-            %>
-            
-            <form action="MainController">
-                <input type="hidden" name="action" value="search"/>
-                <input type="text" name="searchTerm" placeholder="Search Project Name" value="<%= searchTerm %>"/>
-                <input type="submit" value="Search"/>
-            </form>
-
-            <%
-                List<StartupProjectsDTO> projects = (List<StartupProjectsDTO>) request.getAttribute("projects");
-                if (projects != null && !projects.isEmpty()) {
-            %>
             <table>
                 <tr>
-                    <th>Project ID</th> 
-                    <th>Project Name</th>
+                    <th>Category ID</th>
+                    <th>Category Name</th>
                     <th>Description</th>
-                    <th>Status</th>
-                    <th>Estimated Launch</th>
                 </tr>
                 <%
-                    for (StartupProjectsDTO item : projects) {
+                    if (categories != null) {
+                        for (ExamCategoriesDTO category : categories) {
                 %>
                 <tr>
-                    <td><%= item.getProject_id() %></td>
-                    <td><%= item.getProject_name() %></td>
-                    <td><%= item.getDescription() %></td>
-                    <td><%= item.getStatus() %></td>
-                    <td><%= item.getEstimated_launch() %></td>
+                    <td><%= category.getCategory_id()%></td>
+                    <td><%= category.getCategory_name()%></td>
+                    <td><%= category.getDescription()%></td>
                 </tr>
                 <%
+                        }
                     }
-                %>
+                %>             
             </table>
-            <% } else { %>
-                <p>No projects found.</p>
-            <% } %>
-
-            <% } else { %>
-            <p>You are not logged in. <a href="logout.jsp">Login here</a></p>
-            <% } %>
-
-            <% if (user != null && user.getRole().equalsIgnoreCase("founder")){ %>
+            <form action="MainController" method="GET">
+                <input type="hidden" name="action" value="viewCategories">
+                <input type="submit" value="View Categories">
+            </form>            
             
-            <form action="MainController" method="post">
-                <input type="hidden" name="action" value="add">
-                <button type="submit">Create New Project</button>
-            </form>
+            <a href="ViewExams?category_id=${category.categoryId}">
+                <button>View Exams</button>
+            </a>
 
-            <form action="MainController" method="get">
-                <input type="hidden" name="action" value="updateStatus">
-                <button type="submit">Update Project Status</button>
-            </form>
+            <%
+                if (user != null && user.getRole().equals("Instructors ")) {
 
-            <% } %>
+
+            %>
+
+            <%                    }
+            %>
         </div>
+
     </body>
 </html>

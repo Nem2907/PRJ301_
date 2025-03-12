@@ -147,8 +147,8 @@ public class MainController extends HttpServlet {
                         } else {
                             url = "register.jsp";
                         }
-
                     }
+//                    }else if()
 
                 }
             } catch (Exception e) {
