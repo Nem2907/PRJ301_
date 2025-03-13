@@ -146,6 +146,7 @@
                     <th>Category ID</th>
                     <th>Category Name</th>
                     <th>Description</th>
+                    <th>Action</th>
                 </tr>
                 <%
                     if (categories != null) {
@@ -155,6 +156,13 @@
                     <td><%= category.getCategory_id()%></td>
                     <td><%= category.getCategory_name()%></td>
                     <td><%= category.getDescription()%></td>
+                    <td> 
+                        <form action="MainController" method="GET">
+                            <input type="hidden" name="action" value="viewExams">
+                            <input type="hidden" name="category_id" value="<%=category.getCategory_id()%>">
+                            <input type="submit" value="View Exams">
+                        </form>
+                    </td>
                 </tr>
                 <%
                         }
@@ -164,21 +172,21 @@
             <form action="MainController" method="GET">
                 <input type="hidden" name="action" value="viewCategories">
                 <input type="submit" value="View Categories">
-            </form>            
-            
-            <a href="ViewExams?category_id=${category.categoryId}">
-                <button>View Exams</button>
-            </a>
-
+            </form>
             <%
-                if (user != null && user.getRole().equals("Instructors ")) {
-
-
+                if (user != null && user.getRole().equalsIgnoreCase("Instructor")) {
+            %>
+            <form action="MainController" method="POST">
+                <input type="hidden" name="action" value="addExam">
+                <input type="submit" value="Create New Exam">
+            </form>
+            <%
+                }
             %>
 
-            <%                    }
-            %>
+
         </div>
+
 
     </body>
 </html>

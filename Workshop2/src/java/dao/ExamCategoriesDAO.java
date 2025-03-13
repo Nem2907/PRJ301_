@@ -5,6 +5,7 @@
  */
 package dao;
 import dto.ExamCategoriesDTO;
+import dto.ExamsDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,6 +62,24 @@ import utils.DBUtils;
     @Override
     public List<ExamCategoriesDTO> search(String searchTerm) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    public List<ExamCategoriesDTO> getExamsByCategory(int categories_id) {
+        List<ExamCategoriesDTO> categories = new ArrayList<>();
+            String sql = "SELECT [category_id], [category_name], [description] FROM [tblExamCategories]";
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement stm = conn.prepareStatement(sql);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                ExamCategoriesDTO newCategories = new ExamCategoriesDTO(rs.getInt("category_id"),
+                                                               rs.getString("category_name"),
+                                                                rs.getString("description"));
+                categories.add(newCategories);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return categories;
     }
     
 }

@@ -49,6 +49,53 @@ public class MainController extends HttpServlet {
         return user != null && user.getPassword().equals(strPassword);
     }
 
+    private String validateExamInput(String examTitle, String subject, String categoryIdStr, String totalMarksStr, String durationStr) {
+        if (examTitle == null || examTitle.trim().isEmpty()) {
+            return "Exam Title cannot be empty.";
+        }
+        if (subject == null || subject.trim().isEmpty()) {
+            return "Subject cannot be empty.";
+        }
+        if (categoryIdStr == null || categoryIdStr.trim().isEmpty()) {
+            return "Please select a category.";
+        }
+        if (totalMarksStr == null || totalMarksStr.trim().isEmpty()) {
+            return "Total Marks cannot be empty.";
+        }
+        if (durationStr == null || durationStr.trim().isEmpty()) {
+            return "Duration cannot be empty.";
+        }
+
+        try {
+            int categoryId = Integer.parseInt(categoryIdStr);
+            if (categoryId <= 0) {
+                return "Invalid category selected.";
+            }
+        } catch (NumberFormatException e) {
+            return "Invalid category format.";
+        }
+
+        try {
+            int totalMarks = Integer.parseInt(totalMarksStr);
+            if (totalMarks <= 0) {
+                return "Total Marks must be greater than 0.";
+            }
+        } catch (NumberFormatException e) {
+            return "Total Marks must be a valid number.";
+        }
+
+        try {
+            int duration = Integer.parseInt(durationStr);
+            if (duration <= 0) {
+                return "Duration must be greater than 0.";
+            }
+        } catch (NumberFormatException e) {
+            return "Duration must be a valid number.";
+        }
+
+        return null;
+    }
+
 //    public void search(HttpServletRequest request, HttpServletResponse response)
 //            throws ServletException, IOException {
 //        String searchTerm = request.getParameter("searchTerm");
@@ -66,10 +113,11 @@ public class MainController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             String url = LOGIN_PAGE;
-        ExamCategoriesDAO examCategoriesDAO = new ExamCategoriesDAO();
-        ExamDAO examDAO = new ExamDAO();
+            ExamCategoriesDAO examCategoriesDAO = new ExamCategoriesDAO();
+            ExamDAO examDAO = new ExamDAO();
             try {
                 String action = request.getParameter("action");
+                System.out.println(action);
                 if (action == null) {
                     url = LOGIN_PAGE;
                 } else {
@@ -80,9 +128,9 @@ public class MainController extends HttpServlet {
                         System.out.println(password);
                         if (isValidLogin(username, password)) {
                             System.out.println(isValidLogin(username, password));
-                            HttpSession session = request.getSession();
                             url = "viewCategories.jsp";
                             UserDTO user = getUser(username);
+
                             request.getSession().setAttribute("user", user);
                             request.getSession().setAttribute("role", user.getRole());
                         } else {
@@ -93,30 +141,61 @@ public class MainController extends HttpServlet {
                         request.getSession().invalidate();
                         url = "login.jsp";
                     } else if (action.equals("viewCategories")) {
-                        
+
                         List<ExamCategoriesDTO> categories = examCategoriesDAO.readAll();
                         request.setAttribute("categories", categories);
                         url = "viewCategories.jsp";
-                    }else if ("viewExams".equals(action)) { 
-                // 🔹 Lấy category_id từ request
-                int categoryId = Integer.parseInt(request.getParameter("category_id"));
-                
-                // 🔹 Gọi DAO để lấy danh sách exams theo categoryId
-                List<ExamsDTO> examList = examDAO.getExamsByCategory();
-                
-                // 🔹 Đưa danh sách exams vào request scope
-                request.setAttribute("examList", examList);
-                
-                // 🔹 Chuyển hướng đến trang examlist.jsp
-                url = "examlist.jsp";
-            }
-//                    } else if (action.equals("search")) {
-//                        url = "search.jsp";
-//                        String searchTerm = request.getParameter("searchTerm");
-//                        List<StartupProjectsDTO> projects = projectDAO.searchByName(searchTerm);
-//                        request.setAttribute("projects", projects);
-//                        request.setAttribute("searchTerm", searchTerm);
-//                    } 
+
+                    } else if (action.equals("viewExams")) {
+                        String categoryIdStr = request.getParameter("category_id");
+                        if (categoryIdStr == null || categoryIdStr.trim().isEmpty()) {
+                            request.setAttribute("errorMessage", "Invalid Category ID.");
+                            url = "viewCategories.jsp";
+                        } else {
+                            try {
+                                int categoryId = Integer.parseInt(categoryIdStr);
+
+                                List<ExamsDTO> examList = examDAO.getExamsByCategory(categoryId);
+
+                                request.setAttribute("examList", examList);
+                                url = "examlist.jsp";
+                            } catch (NumberFormatException e) {
+                                request.setAttribute("errorMessage", "Invalid Category ID format.");
+                                url = "viewCategories.jsp";
+                            }
+                        }
+                    } else if (action.equals("addExam")) {
+                        String examTitle = request.getParameter("exam_title");
+                        String subject = request.getParameter("subject");
+                        String categoryIdStr = request.getParameter("category_id");
+                        String totalMarksStr = request.getParameter("total_marks");
+                        String durationStr = request.getParameter("duration");
+
+                        if (examTitle == null || subject == null || categoryIdStr == null || totalMarksStr == null || durationStr == null) {
+                            // Nếu chưa có dữ liệu (nghĩa là chỉ mới bấm "Create New Exam"), thì chuyển đến trang ExamForm.jsp
+                            url = "ExamForm.jsp";
+                        } else {
+
+                            String message = validateExamInput(examTitle, subject, categoryIdStr, totalMarksStr, durationStr);
+                            if (message != null) {
+                                request.setAttribute("Error_Message", message);
+                            } else {
+                                int categoryId = Integer.parseInt(categoryIdStr);
+                                int totalMarks = Integer.parseInt(totalMarksStr);
+                                int duration = Integer.parseInt(durationStr);
+                                ExamsDTO newExam = new ExamsDTO(0, examTitle, subject, categoryId, totalMarks, duration);
+                                boolean success = examDAO.create(newExam);
+
+                                if (success) {
+                                    request.setAttribute("message", "Exam created successfully!"); 
+                                    url = "ExamForm.jsp";
+                                } else {
+                                    request.setAttribute("errorMessage", "Failed to create exam.");
+                                    url = "ExamForm.jsp";
+                                }
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
                 log("Error in MainController: " + e.toString());

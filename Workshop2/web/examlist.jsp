@@ -1,74 +1,62 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="dto.ExamsDTO"%>
-<%@page import="dto.UserDTO"%>
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Exam List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 600px;
-            text-align: center;
-        }
-        h2 { color: #333; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: center; }
-        th { background-color: #28a745; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .logout-btn { background-color: #dc3545; }
-        .logout-btn:hover { background-color: #c82333; }
-        .back-btn, .logout-btn { padding: 8px 12px; border: none; color: white; border-radius: 5px; cursor: pointer; }
-        .back-btn { background-color: #007bff; margin-top: 10px; }
-        .back-btn:hover { background-color: #0056b3; }
-    </style>
-</head>
-<body>
-    <div class="container">
+    <head>
+        <meta charset="UTF-8">
+        <title>Exam List</title>
+        <style>
+            body { font-family: Arial, sans-serif; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+            th { background-color: #28a745; color: white; }
+            .error { color: red; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+
         <h2>Exam List</h2>
-        <c:if test="${not empty sessionScope.user}">
-            <p class="welcome-message">Hello, <strong>${sessionScope.user.name}</strong>! You are logged in.</p>
-            <form action="MainController" method="POST">
-                <input type="hidden" name="action" value="logout"/>
-                <input type="submit" class="logout-btn" value="Logout"/>
-            </form>
-        </c:if>
+
+        <%
+            List<ExamsDTO> examList = (List<ExamsDTO>) request.getAttribute("examList");
+            String errorMessage = (String) request.getAttribute("errorMessage");
+
+            if (errorMessage != null) {
+        %>
+        <p class="error"><%= errorMessage%></p>
+        <%
+        } else if (examList == null || examList.isEmpty()) {
+        %>
+        <p>No exams available for this category.</p>
+        <%
+        } else {
+        %>
         <table>
             <tr>
+                <th>Exam ID</th>
                 <th>Exam Title</th>
                 <th>Subject</th>
                 <th>Total Marks</th>
                 <th>Duration (mins)</th>
             </tr>
-            <c:forEach var="exam" items="${examList}">
-                <tr>
-                    <td>${exam.examTitle}</td>
-                    <td>${exam.subject}</td>
-                    <td>${exam.totalMarks}</td>
-                    <td>${exam.duration}</td>
-                </tr>
-            </c:forEach>
+            <% for (ExamsDTO exam : examList) {%>
+            <tr>
+                <td><%= exam.getExam_id()%></td>
+                <td><%= exam.getExam_tilte()%></td>
+                <td><%= exam.getSubject()%></td>
+                <td><%= exam.getToltal_marks()%></td>
+                <td><%= exam.getDuration()%></td>
+            </tr>
+            <% } %>
         </table>
-        <a href="dashboard.jsp">
-            <button class="back-btn">Back to Categories</button>
+        <%
+            }
+        %>
+
+        <a href="viewCategories.jsp">
+            <button>Back to Categories</button>
         </a>
-    </div>
-</body>
+
+    </body>
 </html>
